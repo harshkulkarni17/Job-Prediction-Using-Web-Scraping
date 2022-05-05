@@ -1,0 +1,32 @@
+```{r}
+library(rvest)
+library(dplyr)
+```
+
+```{r}
+Job_Data <- data.frame()
+```
+
+```{r}
+for (page_result in 4:5){
+  
+     link <- paste0("https://www.glassdoor.co.in/Job/data-scientist-jobs-SRCH_KO0,14_IP",page_result,".htm")
+     page <- read_html(link)
+     
+     company <- page %>%
+      html_nodes(".e1n63ojh0 span") %>% html_text()
+     
+     job_post <- page %>%
+      html_nodes(".eigr9kq1 span") %>% html_text()
+     
+     job_location <- page %>%
+      html_nodes(".pr-xxsm") %>% html_text()
+    
+    print(paste("Page:", page_result))
+    Job_Data <- rbind(Job_Data, data.frame(company, job_post, job_location))
+}
+```
+```{r}
+Job_Data
+```
+

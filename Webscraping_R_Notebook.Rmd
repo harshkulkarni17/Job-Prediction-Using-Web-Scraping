@@ -1,0 +1,34 @@
+```{r}
+library(rvest)
+library(dplyr)
+```
+```{r}
+glassdoor = "https://www.glassdoor.co.in/Job/data-scientist-jobs-SRCH_KO0,14.htm?srs=RECENT_SEARCHES"
+page = read_html(glassdoor)
+```
+
+```{r}
+company <- page %>%
+  html_nodes(".e1n63ojh0 span") %>% html_text()
+company
+```
+```{r}
+job_post <- page %>%
+  html_nodes(".eigr9kq1 span") %>% html_text()
+job_post
+```
+```{r}
+job_location <- page %>%
+  html_nodes(".pr-xxsm") %>% html_text()
+job_location
+```
+```{r}
+ratings <- page %>%
+  html_nodes(".compactStars") %>% html_text()
+ratings
+```
+```{r}
+job_data <- data.frame(Sr.No = 1:length(company), Company = company, Job_Post = job_post, Job_Location = job_location, Ratings = ratings)
+job_data
+```
+

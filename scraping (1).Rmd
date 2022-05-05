@@ -1,0 +1,111 @@
+```{r}
+library(rvest)
+library(dplyr)
+library(stringr)
+```
+
+```{r}
+links <- vector()
+for (page_number in 1:5){  #data scientist
+  link <- paste0("https://www.glassdoor.co.in/Job/data-scientist-jobs-SRCH_KO0,14_IP",page_number,".htm")
+  links <- c(links, link)
+}
+for (page_number in 1:5){  #soft engg
+  link2 <- paste0("https://www.glassdoor.com/Job/india-software-engineer-jobs-SRCH_IL.0,5_IN115_KO6,23_IP",page_number,".htm")
+  links <- c(links, link2)
+}
+
+for (page_number in 1:5){  #entc jobs
+  link3 <- paste0("https://www.glassdoor.com/Job/india-electronics-engineer-jobs-SRCH_IL.0,5_IN115_KO6,26_IP",page_number,".htm")
+  links <- c(links, link3)
+}
+
+for (page_number in 1:5){  #IT jobs
+  link4 <- paste0("https://www.glassdoor.com/Job/india-it-jobs-SRCH_IL.0,5_IN115_KO6,8_IP",page_number,".htm")
+  links <- c(links, link4)
+}
+for (page_number in 1:5){ #AI/Ml jobs
+  link5 <- paste0("https://www.glassdoor.com/Job/india-ai-jobs-SRCH_IL.0,5_IN115_KO6,8_IP",page_number,".htm")
+  links <- c(links, link5)
+}
+for (page_number in 1:5){ #Android developer jobs
+  link6 <- paste0("https://www.glassdoor.com/Job/india-android-developer-jobs-SRCH_IL.0,5_IN115_KO6,23_IP",page_number,".htm")
+  links <- c(links, link6)
+}
+for (page_number in 1:3){ #Database developer jobs
+  link7 <- paste0("https://www.glassdoor.com/Job/india-database-jobs-SRCH_IL.0,5_IN115_KO6,14_IP",page_number,".htm")
+  links <- c(links, link7)
+}
+for (page_number in 1:3){ #Technical analyst jobs
+  link8 <- paste0("https://www.glassdoor.co.in/Job/technical-analyst-jobs-SRCH_KO0,17_IP",page_number,".htm")
+  links <- c(links, link8)
+}
+print(links)
+```
+
+```{r}
+Job_Data <- data.frame()
+Company <- vector()
+Job_post <- vector()
+Job_location <- vector()
+x = c(".css","Glassdoor")
+
+for(each_link in links){
+  page <- read_html(each_link)
+  company_title <- page %>%
+    html_nodes(".e1n63ojh0 span") %>% html_text()
+  Company <- c(Company,company_title)
+  each_job_post <- page %>%
+    html_nodes(".eigr9kq1 span") %>% html_text()
+  Job_post <- c(Job_post, each_job_post)
+  each_job_location <- page %>%
+    html_nodes(".pr-xxsm") %>% html_text()
+  each_job_location <- each_job_location[!each_job_location %in% grep(paste0(x, collapse = "|"), each_job_location, value = T)]
+  Job_location <- c(Job_location,each_job_location)
+}
+
+Job_Data <- cbind(Company,Job_post,Job_location)
+#write.csv(Job_Data,"Job_Data.csv")
+```
+
+```{r}
+Salary <- data.frame("Salary_in_thousands" = floor(runif(length(Company),min = 500, max = 1000)))
+Job_Data <- cbind(Job_Data, Salary)
+```
+
+```{r}
+Experience <- vector()
+istrue <- Job_Data[grepl("Junior",Job_Data$Job_post),]
+for (i in Job_post){
+  if (i == istrue$Job_post){
+    Experience <- c(Experience, floor(runif(1,min = 0, max = 2)))
+  }
+}
+# } else if ("Senior" %in% Job_post || "Sr" %in% Job_post){
+#   Experience <- rbind(Experience, floor(runif(1,min = 5, max = 9)))
+# } else{
+#   Experience <- rbind(Experience, floor(runif(1,min = 2, max = 5)))
+# }
+print(istrue)
+#Job_Data <- cbind(Job_Data, Experience)
+```
+
+```{r}
+Skills <- vector()
+each_skill <- vector()
+
+skills <- data.frame(name = c("python", "java", "R", "machine learning", "data visualization", "database handling", "presentation skills"))
+android_skills <- c("java", "android studio", "android sdk", "xml", "database handling", "API")
+it_skills <- c("problem solving","programming","software development","object-oriented design","debugging", "analytical abilities")
+soft_skills <- c("mathematical aptitude", "problem solving", "programming", "data structures and algorithms", "databases", "operating systems")
+
+for (i in 1:length(Company)) {
+  each_skill <- sample_n(skills, 3, fac = "name")$name
+  Skills <- rbind(Skills, each_skill)
+}
+
+Job_Data <- cbind(Job_Data, "SKILLS" = Skills)
+Job_Data$Skills <- paste(Job_Data$SKILLS.1,"|",Job_Data$SKILLS.2,"|",Job_Data$SKILLS.3)
+Job_Data <- subset(Job_Data,select = -c(SKILLS.1,SKILLS.2,SKILLS.3))
+```
+
